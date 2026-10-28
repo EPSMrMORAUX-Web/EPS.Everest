@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Everest – Demi-fond EPS</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{color-scheme:light;--bg:#eef3f8;--card:#fff;--ink:#0b2545;--mut:#5b6b7f;--line:#d5dee8;--ok:#1a9a4a;--hdr:#0b2545;--btn:#dfe7f1;--tab:#cfd9e6;--th:#e8eef6;--stb:#dbe8ff;--yel:#fff3c4;--abs:#e5e5e5;--dngbg:#fde2e2;--dngc:#9b1c1c;--mt1:#cfe6ff}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0f1722;--card:#1a2433;--ink:#e6edf5;--mut:#9fb0c3;--line:#2c3a4e;--hdr:#09101a;--btn:#2a3a50;--tab:#223048;--th:#25344a;--stb:#27406b;--yel:#5a4a12;--abs:#2c2c2c;--dngbg:#4a1f22;--dngc:#ffb4b4;--mt1:#17304f}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:var(--hdr);color:#fff;padding:12px 16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+header h1{margin:0;font-size:1.3rem}
+button,.btn{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:8px 12px;background:var(--btn);color:var(--ink);display:inline-block}
+button:hover,.btn:hover{filter:brightness(.95)}
+.pri{background:#2563eb;color:#fff}.dng{background:var(--dngbg);color:var(--dngc)}
+#tabs{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px 0;max-width:1200px;margin:0 auto;align-items:center}
+.tab{border-radius:10px 10px 0 0;background:var(--tab)}.tab.on{background:var(--card);font-weight:700;box-shadow:0 -2px 0 #2563eb inset}
+main{max-width:1200px;margin:0 auto;padding:12px}
+details{background:var(--card);border-radius:12px;padding:10px 14px;margin-bottom:12px}
+summary{cursor:pointer;font-weight:600}
+.form{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+input,select{font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+input[type=number]{width:80px}
+.hint{font-size:.8rem;color:var(--mut);margin:8px 0}
+.mount{background:linear-gradient(var(--mt1),var(--card));border-radius:12px;padding:10px;margin-bottom:12px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.row.one{grid-template-columns:1fr}
+.cell{border-radius:10px;padding:6px 8px;min-height:56px;background:var(--card);border-left:8px solid var(--c);font-size:.8rem}
+.cell b{font-size:.9rem}.cell small{color:var(--mut)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.chip{background:var(--c);color:#fff;font-weight:700;border-radius:20px;padding:2px 9px;font-size:.85rem;text-shadow:0 0 2px #0008}
+.dep{background:var(--card);border-left:8px solid #8b5a2b}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.card{background:var(--card);border-radius:14px;padding:12px;border:3px solid transparent;box-shadow:0 1px 3px #0002}
+.card.can{border-color:var(--ok);animation:p 1.2s infinite}
+@keyframes p{50%{box-shadow:0 0 0 5px #1a9a4a44}}
+.top{display:flex;justify-content:space-between;align-items:center}
+.num{font-size:2rem;font-weight:800}
+.mb{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:4px;font-weight:600}
+.sel{padding:4px;font-size:.8rem;max-width:150px}
+.add{width:100%;margin-top:6px}
+.coins{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0}
+.coins button{font-size:1.6rem;width:70px;height:60px;font-weight:700}
+.coins .val{font-size:2.2rem;font-weight:800;min-width:70px;text-align:center}
+.plus{background:#f5c518!important}
+.info{display:flex;justify-content:space-between;font-size:.85rem;color:var(--mut)}
+.etape{font-weight:700;margin:6px 0}
+.tk{width:100%;margin-top:4px;font-weight:600}
+.tk:disabled{opacity:.45;cursor:not-allowed}
+.tk.go{background:var(--ok);color:#fff}
+.small{font-size:.75rem;padding:4px 8px}
+.st{background:var(--stb);border-radius:14px;padding:2px 9px;font-size:.75rem;cursor:pointer}
+.st.u{background:var(--yel)}.st.a{background:var(--abs);text-decoration:line-through;color:#777}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+td,th{border:1px solid var(--line);padding:4px 6px;text-align:center}
+th{background:var(--th)}
+#dlg{display:none;position:fixed;inset:0;background:#0008;align-items:center;justify-content:center;z-index:9}
+#dlg div{background:var(--card);color:var(--ink);padding:18px;border-radius:14px;min-width:280px;max-width:90vw}
+#dlg input{width:100%;margin:10px 0}
+#tst{display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--hdr);color:#fff;padding:10px 16px;border-radius:10px;z-index:10}
+#report{display:none}
+@media print{:root,:root[data-theme=dark]{color-scheme:light;--bg:#fff;--card:#fff;--ink:#000;--mut:#555;--line:#999;--th:#e8eef6}body{background:#fff;color:#000}body>*:not(#report){display:none!important}#report{display:block;padding:6mm}#report h2{margin:0 0 4px}#report td,#report th{font-size:11pt;padding:5px}@page{margin:10mm}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏔️ Everest – Demi-fond</h1>
+  <div>
+    <button class="pri" onclick="exportPDF()">📄 PDF évaluation</button>
+    <button onclick="exportCSV()">⬇ CSV</button>
+    <button id="themeBtn" onclick="toggleTheme()">🌙 Nuit</button>
+    <button onclick="resetAll()" class="dng">Remise à zéro</button>
+  </div>
+</header>
+<div id="tabs"></div>
+<main>
+<details id="ros" open>
+  <summary>👥 Élèves de la classe (<span id="rcount">0</span>)</summary>
+  <div class="form">
+    <label class="btn pri">⬆ Importer Excel / CSV<input type="file" accept=".xlsx,.xls,.csv" hidden onchange="importFile(this)"></label>
+    <input id="sname" placeholder="Ajouter un élève (Prénom NOM)" onkeydown="if(event.key==='Enter')addStudent()">
+    <button onclick="addStudent()">Ajouter</button>
+    <button class="dng" onclick="clearRoster()">Vider la liste</button>
+  </div>
+  <p class="hint">Excel/CSV : colonnes « Nom », « Prénom » et éventuellement « Classe » (une classe = un onglet). L'import crée toujours un nouvel onglet, sans mélanger avec la classe affichée. Clic sur un élève = absent/dispensé (exclu des groupes automatiques). Jaune = libre, bleu = en groupe.</p>
+  <div id="rlist" class="chips"></div>
+</details>
+<details id="grp" open>
+  <summary>🧩 Groupes</summary>
+  <div class="form">
+    <button onclick="autoPairs(false)">Binômes dans l'ordre</button>
+    <button onclick="autoPairs(true)">Binômes aléatoires</button>
+    <label><input type="checkbox" id="trio" checked> Si impair : former un trio (sinon un élève seul)</label>
+  </div>
+  <div class="form">
+    <input type="number" id="nb" min="1" max="40" value="1">
+    <button onclick="emptyGroups()">Créer des groupes vides</button>
+    <button onclick="exportJSON()">⬇ Exporter les groupes (JSON)</button>
+    <label class="btn">⬆ Importer des groupes (JSON)<input type="file" accept=".json,application/json" hidden onchange="importJSON(this)"></label>
+    <input id="seance" placeholder="Séance / date (affiché sur le PDF)" style="min-width:230px" oninput="C().seance=this.value;save()">
+  </div>
+  <p class="hint">L'import JSON crée un nouvel onglet de classe. Sur chaque carte : menu ↪ pour déplacer un élève (autre groupe, nouveau groupe solo ou sans groupe), menu « ajouter un élève » pour compléter un groupe (3 max).</p>
+</details>
+<div class="mount" id="mount"></div>
+<div class="cards" id="cards"></div>
+<details style="margin-top:12px">
+  <summary>📋 Barème & prix des tickets</summary>
+  <table id="bar"></table>
+</details>
+</main>
+<div id="report"></div>
+<div id="dlg"><div><div id="dmsg"></div><input id="dinp" onkeydown="if(event.key==='Enter')dok.click()"><button class="pri" id="dok">OK</button> <button id="dcancel">Annuler</button></div></div>
+<div id="tst"></div>
+
+<script>
+const S=[
+ {n:'Camp de base',alt:'5 364 m',c:16,note:0,col:'#7ac943'},
+ {n:'Camp 1',alt:'6 100 m',c:9,note:4,col:'#4e7a2a'},
+ {n:'Camp 2',alt:'6 500 m',c:9,note:7,col:'#2cc3c9'},
+ {n:'Camp 3',alt:'7 400 m',c:7,note:10,col:'#0097b2'},
+ {n:'Camp 4',alt:'8 000 m',c:7,note:12,col:'#ff914d'},
+ {n:'Sommet',alt:'8 848 m',c:4,note:13,col:'#e61e1e'},
+ {n:'Camp 4 (retour)',alt:'8 000 m',c:4,note:14,col:'#ff914d'},
+ {n:'Camp 3 (retour)',alt:'7 400 m',c:7,note:15,col:'#0097b2'},
+ {n:'Camp 2 (retour)',alt:'6 500 m',c:7,note:17,col:'#2cc3c9'},
+ {n:'Camp 1 (retour)',alt:'6 100 m',c:9,note:19,col:'#4e7a2a'},
+ {n:'Camp de base (retour)',alt:'5 364 m',c:9,note:20,col:'#7ac943'}
+];
+const KEY='everest-demi-fond-v2',MAX=3;
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const newClass=name=>({id:uid(),name,roster:[],groups:[],seance:''});
+let D=null;
+try{D=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!D||!Array.isArray(D.cl)){
+  D={cl:[],cur:null};
+  try{ // migration éventuelle depuis la v1
+    const g=JSON.parse(localStorage.getItem('everest-demi-fond-v1')||'[]'),r=JSON.parse(localStorage.getItem('everest-demi-fond-v1-r')||'[]');
+    if(g.length||r.length){const c=newClass('Ma classe');c.roster=r.map(s=>({n:s.n,abs:0}));c.groups=g.map(x=>({id:x.id,m:[x.a,x.b].filter(Boolean),coins:x.coins,st:x.st}));D.cl.push(c)}
+  }catch(e){}
+}
+if(!D.cl.length)D.cl.push(newClass('Classe 1'));
+if(!D.cl.some(c=>c.id===D.cur))D.cur=D.cl[0].id;
+const C=()=>D.cl.find(c=>c.id===D.cur);
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){}};
+const get=id=>C().groups.find(g=>g.id===id);
+const spent=g=>S.slice(0,g.st+1).reduce((a,s)=>a+s.c,0);
+const bal=g=>g.coins-spent(g);
+const note=g=>g.st<0?0:S[g.st].note;
+const used=()=>new Set(C().groups.flatMap(g=>g.m));
+const freeSt=()=>{const u=used();return C().roster.map((s,i)=>({s,i})).filter(o=>!u.has(o.s.n))};
+const freeId=()=>{const u=new Set(C().groups.map(g=>g.id));let i=1;while(u.has(i))i++;return i};
+const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+
+/* ---------- dialogues (sans alert/confirm, compatibles avec les aperçus) ---------- */
+function dlg(msg,o={}){
+  dmsg.textContent=msg;dinp.style.display=o.input?'':'none';dinp.value=o.val||'';dlgEl().style.display='flex';
+  dok.onclick=()=>{const v=dinp.value;dlgEl().style.display='none';o.ok&&o.ok(v)};
+  dcancel.onclick=()=>dlgEl().style.display='none';
+  if(o.input)dinp.focus();
+}
+const dlgEl=()=>document.getElementById('dlg');
+function toast(m){tst.textContent=m;tst.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>tst.style.display='none',3800)}
+
+/* ---------- classes (onglets) ---------- */
+function sw(id){D.cur=id;save();render()}
+function addClass(){dlg('Nom de la nouvelle classe',{input:1,ok:v=>{const c=newClass(v.trim()||'Classe '+(D.cl.length+1));D.cl.push(c);D.cur=c.id;save();render()}})}
+function renameClass(){dlg('Renommer la classe',{input:1,val:C().name,ok:v=>{if(v.trim()){C().name=v.trim();save();render()}}})}
+function delClass(){dlg('Supprimer la classe « '+C().name+' » avec ses élèves et ses groupes ?',{ok:()=>{
+  D.cl=D.cl.filter(c=>c.id!==D.cur);if(!D.cl.length)D.cl.push(newClass('Classe 1'));D.cur=D.cl[0].id;save();render()}})}
+function placeClass(name,roster,groups){
+  let c=C();
+  if(c.roster.length||c.groups.length){c=newClass(name);D.cl.push(c)}
+  else if(/^(Classe \d+|Ma classe)$/.test(c.name))c.name=name;
+  c.roster=roster;c.groups=groups;D.cur=c.id;save();render();
+}
+
+/* ---------- élèves ---------- */
+function addStudent(){
+  const n=sname.value.trim();if(!n)return;
+  if(C().roster.some(s=>s.n===n))return toast('Cet élève existe déjà.');
+  C().roster.push({n,abs:0});C().roster.sort((a,b)=>a.n.localeCompare(b.n,'fr'));sname.value='';save();render();
+}
+function toggleAbs(i){const s=C().roster[i];s.abs=s.abs?0:1;save();render()}
+function clearRoster(){dlg('Vider la liste des élèves de cette classe ? (les groupes restent)',{ok:()=>{C().roster=[];save();render()}})}
+function importFile(inp){
+  const f=inp.files[0];if(!f)return;
+  const isCsv=/\.csv$/i.test(f.name);
+  if(!isCsv&&typeof XLSX==='undefined'){inp.value='';return toast("Lecture Excel indisponible hors connexion : enregistre en .csv puis réimporte.")}
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const buf=e.target.result;let rows;
+      if(isCsv){
+        let txt;try{txt=new TextDecoder('utf-8',{fatal:true}).decode(buf)}catch(_){txt=new TextDecoder('windows-1252').decode(buf)}
+        const l0=txt.split(/\r?\n/)[0];
+        const sep=(l0.match(/;/g)||[]).length>=(l0.match(/,/g)||[]).length?';':',';
+        rows=txt.split(/\r?\n/).map(l=>l.split(sep));
+      }else{
+        const wb=XLSX.read(buf,{type:'array'});
+        rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});
+      }
+      rows=rows.map(r=>r.map(c=>String(c).replace(/^"|"$/g,'').trim())).filter(r=>r.some(c=>c));
+      if(!rows.length)return toast('Fichier vide.');
+      const h=rows[0].map(norm);
+      const iN=h.findIndex(x=>/^nom/.test(x)&&!/prenom/.test(x)),iP=h.findIndex(x=>/^prenom/.test(x)),iC=h.findIndex(x=>/^classe/.test(x));
+      const head=iN>=0||iP>=0,base=f.name.replace(/\.[^.]+$/,'');
+      const buckets={};
+      (head?rows.slice(1):rows).forEach(r=>{
+        const n=head?[iP>=0?r[iP]:'',iN>=0?(r[iN]||'').toUpperCase():''].filter(Boolean).join(' '):r[0];
+        if(!n)return;
+        const k=(head&&iC>=0&&r[iC])||base;
+        (buckets[k]=buckets[k]||[]).push(n);
+      });
+      const ks=Object.keys(buckets);
+      if(!ks.length)return toast('Aucun élève trouvé.');
+      ks.forEach(k=>placeClass(k,[...new Set(buckets[k])].sort((a,b)=>a.localeCompare(b,'fr')).map(n=>({n,abs:0})),[]));
+      toast(ks.length+' classe(s) importée(s).');
+    }catch(err){toast('Import impossible : '+err.message)}
+  };
+  r.readAsArrayBuffer(f);inp.value='';
+}
+
+/* ---------- groupes ---------- */
+function autoPairs(rand){
+  const c=C(),free=freeSt().filter(o=>!o.s.abs).map(o=>o.s.n);
+  if(!free.length)return toast('Aucun élève libre (déjà en groupe, absent, ou liste vide).');
+  if(rand)for(let i=free.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[free[i],free[j]]=[free[j],free[i]]}
+  const made=[];
+  for(let i=0;i<free.length;i+=2){
+    const m=free.slice(i,i+2);
+    if(m.length===1&&trio.checked&&made.length){made[made.length-1].m.push(m[0]);continue}
+    const g={id:freeId(),m,coins:0,st:-1};c.groups.push(g);made.push(g);
+  }
+  save();render();
+}
+function emptyGroups(){const n=Math.min(40,Math.max(1,+nb.value||1));for(let i=0;i<n;i++)C().groups.push({id:freeId(),m:[],coins:0,st:-1});save();render()}
+function addM(id,i){
+  const g=get(id),s=C().roster[+i];if(!s)return;
+  if(g.m.length>=MAX){render();return toast('Groupe plein ('+MAX+' max).')}
+  g.m.push(s.n);save();render();
+}
+function move(id,i,t){
+  if(!t)return;
+  const c=C(),g=get(id),n=g.m[i];
+  if(t!=='new'&&t!=='none'&&get(+t).m.length>=MAX){render();return toast('Groupe '+t+' plein ('+MAX+' max).')}
+  g.m.splice(i,1);
+  if(t==='new')c.groups.push({id:freeId(),m:[n],coins:0,st:-1});
+  else if(t!=='none')get(+t).m.push(n);
+  if(!g.m.length&&(g.coins||g.st>=0)){c.groups=c.groups.filter(x=>x!==g);toast('Groupe '+g.id+' vidé : supprimé avec ses pièces.')}
+  else if(!g.m.length)c.groups=c.groups.filter(x=>x!==g);
+  save();render();
+}
+function delGroup(id){dlg('Supprimer le groupe '+id+' ? Ses élèves redeviennent libres.',{ok:()=>{C().groups=C().groups.filter(g=>g.id!==id);save();render()}})}
+function coin(id,d){const g=get(id);g.coins=Math.max(spent(g),g.coins+d);save();render()}
+function buy(id){const g=get(id),s=S[g.st+1];if(s&&bal(g)>=s.c){g.st++;save();render()}}
+function undo(id){const g=get(id);if(g.st>=0){g.st--;save();render()}}
+function resetAll(){dlg('Remettre à zéro les pièces et tickets de la classe « '+C().name+' » ? (élèves et groupes conservés)',{ok:()=>{C().groups.forEach(g=>{g.coins=0;g.st=-1});save();render();toast('Remise à zéro effectuée.')}})}
+
+/* ---------- JSON ---------- */
+function exportJSON(){
+  const c=C();
+  const o={app:'everest-demi-fond',version:2,classe:c.name,eleves:c.roster.map(s=>({nom:s.n,absent:!!s.abs})),
+    groupes:c.groups.map(g=>({numero:g.id,membres:g.m,tours:g.coins,etape:g.st}))};
+  dl(JSON.stringify(o,null,2),'application/json','everest-groupes-'+c.name.replace(/\W+/g,'_')+'.json');
+}
+function dl(txt,type,name){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type}));a.download=name;a.click()}
+const nm=x=>{if(typeof x==='string')return x.trim();if(!x)return '';const p=x.prenom||x.firstName||'',n=x.nom||x.lastName||x.name||x.n||'';return (p&&n?p+' '+n:(n||p)).trim()};
+function importJSON(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const o=JSON.parse(e.target.result),base=f.name.replace(/\.[^.]+$/,'');
+      let name=base,el=[],gr=o;
+      if(!Array.isArray(o)){name=o.classe||o.class||o.nom||o.name||base;el=o.eleves||o.students||o.roster||[];gr=o.groupes||o.groups||o.binomes||[]}
+      if(!Array.isArray(gr))gr=Object.entries(gr).map(([k,v])=>Array.isArray(v)?{numero:+k,membres:v}:v);
+      const roster=new Map();
+      el.forEach(x=>{const n=nm(x);if(n)roster.set(n,{n,abs:x&&x.absent?1:0})});
+      const ids=new Set(),groups=[];
+      gr.forEach((x,i)=>{
+        const raw=Array.isArray(x)?x:(x.membres||x.members||x.eleves||x.students||x.noms||x.names||[x.a,x.b,x.c]);
+        const m=raw.map(nm).filter(Boolean);if(!m.length)return;
+        let id=Array.isArray(x)?i+1:+(x.numero||x.id||x.num||i+1);
+        while(ids.has(id)||!id)id=(id||0)+1;ids.add(id);
+        let st=Array.isArray(x)?-1:+(x.etape!==undefined?x.etape:x.st!==undefined?x.st:-1);
+        st=Math.min(S.length-1,Math.max(-1,isNaN(st)?-1:st));
+        const g={id,m,coins:Array.isArray(x)?0:Math.max(0,+(x.tours||x.coins||0)||0),st};
+        g.coins=Math.max(g.coins,spent(g));groups.push(g);
+        m.forEach(n=>{if(!roster.has(n))roster.set(n,{n,abs:0})});
+      });
+      if(!groups.length&&!roster.size)return toast('Aucun groupe reconnu dans ce fichier.');
+      placeClass(String(name),[...roster.values()].sort((a,b)=>a.n.localeCompare(b.n,'fr')),groups);
+      toast('Classe « '+name+' » importée dans un nouvel onglet.');
+    }catch(err){toast('JSON invalide : '+err.message)}
+  };
+  r.readAsText(f);inp.value='';
+}
+
+/* ---------- affichage ---------- */
+function renderTabs(){
+  tabs.innerHTML=D.cl.map(c=>`<button class="tab ${c.id===D.cur?'on':''}" onclick="sw('${c.id}')">${esc(c.name)} <small>(${c.roster.length})</small></button>`).join('')+
+   `<button class="small pri" onclick="addClass()">＋ Classe</button><button class="small" onclick="renameClass()">✏️ Renommer</button><button class="small dng" onclick="delClass()">🗑</button>`;
+}
+function renderRoster(){
+  const c=C(),u=used();rcount.textContent=c.roster.length;
+  rlist.innerHTML=c.roster.map((s,i)=>`<span class="st ${s.abs?'a':u.has(s.n)?'':'u'}" title="Clic : absent/dispensé" onclick="toggleAbs(${i})">${esc(s.n)}</span>`).join('');
+}
+function cell(i){
+  const s=S[i],here=C().groups.filter(g=>g.st===i);
+  return `<div class="cell" style="--c:${s.col}"><b>${s.n}</b> <small>${s.alt} · ${s.c} 🪙</small>
+  <div class="chips">${here.map(g=>`<span class="chip" style="--c:${s.col}">${g.id}</span>`).join('')}</div></div>`;
+}
+function renderMount(){
+  const rows=[[5],[4,6],[3,7],[2,8],[1,9],[0,10]],dep=C().groups.filter(g=>g.st<0);
+  mount.innerHTML=rows.map(r=>`<div class="row ${r.length==1?'one':''}">${r.map(cell).join('')}</div>`).join('')+
+   `<div class="row one"><div class="cell dep"><b>Départ</b> <small>en route vers le camp de base</small>
+   <div class="chips">${dep.map(g=>`<span class="chip" style="--c:#8b5a2b">${g.id}</span>`).join('')}</div></div></div>`;
+}
+function renderCards(){
+  const c=C(),free=freeSt();
+  cards.innerHTML=c.groups.length?c.groups.map(g=>{
+    const nx=S[g.st+1],b=bal(g),can=nx&&b>=nx.c;
+    const cur=g.st<0?'🚶 Au départ':'📍 '+S[g.st].n;
+    const mem=g.m.map((n,i)=>`<div class="mb"><span>${esc(n)}</span><select class="sel" onchange="move(${g.id},${i},this.value)"><option value="">↪</option>${
+      c.groups.filter(h=>h.id!==g.id).map(h=>`<option value="${h.id}" ${h.m.length>=MAX?'disabled':''}>Groupe ${h.id}</option>`).join('')}${
+      g.m.length>1?'<option value="new">＋ Nouveau groupe (solo)</option>':''}<option value="none">✖ Sans groupe</option></select></div>`).join('');
+    const add=g.m.length<MAX&&free.length?`<select class="sel add" onchange="addM(${g.id},this.value)"><option value="">＋ ajouter un élève</option>${free.map(o=>`<option value="${o.i}">${esc(o.s.n)}${o.s.abs?' (absent)':''}</option>`).join('')}</select>`:'';
+    return `<div class="card ${can?'can':''}">
+     <div class="top"><span class="num">#${g.id}</span><button class="small dng" onclick="delGroup(${g.id})">✕</button></div>
+     ${mem||'<div class="hint">Groupe vide</div>'}${add}
+     <div class="coins"><button onclick="coin(${g.id},-1)">−</button>
+      <div class="val">${b}<div style="font-size:.7rem;color:var(--mut)">🪙 en poche</div></div>
+      <button class="plus" onclick="coin(${g.id},1)">+</button></div>
+     <div class="info"><span>Total : ${g.coins} tours</span><span>${(g.coins/10).toFixed(1)} km</span></div>
+     <div class="etape">${cur} · Note <b>${note(g)}</b>/20</div>
+     ${nx?`<button class="tk ${can?'go':''}" ${can?'':'disabled'} onclick="buy(${g.id})">🎫 Ticket « ${nx.n} » (${nx.c} 🪙)</button>`:`<div class="etape">🏁 Parcours terminé !</div>`}
+     ${g.st>=0?`<button class="tk small" onclick="undo(${g.id})">↩ Annuler le dernier ticket (rend ${S[g.st].c} 🪙)</button>`:''}
+    </div>`}).join(''):'<p>Aucun groupe dans cette classe : « Binômes dans l\'ordre », ou importe un JSON.</p>';
+}
+function render(){const c=C();c.groups.sort((a,b)=>a.id-b.id);renderTabs();renderRoster();renderMount();renderCards();seance.value=c.seance||''}
+
+bar.innerHTML='<tr><th>Étape</th><th>Prix du ticket</th><th>Cumul pièces</th><th>Distance</th><th>Note</th></tr>'+
+ S.map((s,i)=>{const cum=S.slice(0,i+1).reduce((a,x)=>a+x.c,0);
+ return `<tr><td>${s.n}</td><td>${s.c}</td><td>${cum}</td><td>${(cum/10).toFixed(1)} km</td><td>${s.note}</td></tr>`}).join('');
+
+/* ---------- exports ---------- */
+function exportCSV(){
+  const l=['Classe;Groupe;Eleve;Tours;Distance km;Etape;Note /20'],c=C();
+  c.groups.forEach(g=>(g.m.length?g.m:['']).forEach(n=>l.push([c.name,g.id,n,g.coins,(g.coins/10).toFixed(1).replace('.',','),g.st<0?'Depart':S[g.st].n,note(g)].join(';'))));
+  dl('\ufeff'+l.join('\n'),'text/csv','everest-resultats-'+c.name.replace(/\W+/g,'_')+'.csv');
+}
+function exportPDF(){
+  const c=C();
+  if(!c.groups.length)return toast('Aucun groupe à exporter dans cette classe.');
+  let rows='';
+  c.groups.forEach(g=>{
+    const et=g.st<0?'Départ':S[g.st].n;
+    (g.m.length?g.m:['—']).forEach(n=>rows+=`<tr><td>${g.id}</td><td style="text-align:left">${esc(n)}</td><td>${g.coins}</td><td>${(g.coins/10).toFixed(1)} km</td><td>${et}</td><td><b>${note(g)}</b>/20</td></tr>`);
+  });
+  report.innerHTML=`<h2>🏔️ Everest – Demi-fond : ${esc(c.name)}</h2>
+  <p>${esc(c.seance)} ${esc(c.seance)?'— ':''}${new Date().toLocaleDateString('fr-FR')}</p>
+  <table><tr><th>Groupe</th><th>Élève</th><th>Tours</th><th>Distance</th><th>Dernière étape (ticket)</th><th>Note</th></tr>${rows}</table>
+  <p style="font-size:.8rem;color:#555">Note = étape du dernier ticket acheté. 1 tour = 100 m.</p>`;
+  window.print();
+}
+function applyTheme(t){document.documentElement.dataset.theme=t;themeBtn.textContent=t==='dark'?'☀️ Jour':'🌙 Nuit'}
+function toggleTheme(){const t=document.documentElement.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem(KEY+'-theme',t)}catch(e){}applyTheme(t)}
+{let th=null;try{th=localStorage.getItem(KEY+'-theme')}catch(e){}
+applyTheme(th||(window.matchMedia&&matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'))}
+render();
+</script>
+</body>
+</html>
